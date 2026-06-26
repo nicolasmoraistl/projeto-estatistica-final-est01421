@@ -1,4 +1,4 @@
-Países,Ano,energy_matrix_share,rentier_state,oil_centered_matrix,oil_share_gdp,export_oil,import_oil,fuel_share_exports,tax_share_gdp,industry_share_gdp,gdp_capita_ppp,life_expectancy,unemployement,inflation_index,hdi,cpi_index ,gov_stability,bureaucratic_eff,rule_of_law,development_level,ressource_rich_export_country,micronation
+countries,year,energy_matrix_share,rentier_state,oil_centered_matrix,oil_share_gdp,export_oil,import_oil,fuel_share_exports,tax_share_gdp,industry_share_gdp,gdp_capita_ppp,life_expectancy,unemployement,inflation_index,hdi,cpi_index ,gov_stability,bureaucratic_eff,rule_of_law,development_level,ressource_rich_export_country,micronation
 Afeganistão,1995,,,,,,,,,,,,,,,,,,,,,
 Afeganistão,1996,,,,,,,,,,,,,,,,,,,,,
 Afeganistão,1997,,,,,,,,,,,,,,,,,,,,,
