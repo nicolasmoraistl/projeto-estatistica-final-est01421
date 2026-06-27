@@ -9,6 +9,9 @@ database_main = pd.read_csv('data_frame_en.csv', sep=',')
 
 database_main['corruption_control'] = pd.NA
 
+database_main['foreign_investments'] = pd.NA
+
+
 
 #criar função que transfira os dados
 
@@ -100,6 +103,21 @@ database_main = transfer_data_to_main(oil_share_gdp, 'oil_share_gdp', database_m
 
 database_main.to_csv('main_database.csv', index=False)
 
+#investimentos estrangeiros
+
+fdi_gdp = pd.read_csv('data/foreign_direct_investments/API_BX.KLT.DINV.WD.GD.ZS_DS2_en_csv_v2_411706.csv')
+
+database_main = transfer_data_to_main(fdi_gdp, 'foreign_investments', database_main)
+
+database_main.to_csv('main_database.csv', index=False)
+#inflação
+
+inflation_index = pd.read_csv('data/Inflation_index/API_FP.CPI.TOTL.ZG_DS2_en_csv_v2_250039.csv')
+
+database_main = transfer_data_to_main(inflation_index, 'inflation_index', database_main)
+
+database_main.to_csv('main_database.csv', index=False)
+
 #porcentagem do petróleo nas exportações
 
 fuel_exports = pd.read_csv('data/%fuel exports-merchandise/API_TX.VAL.FUEL.ZS.UN_DS2_en_csv_v2_1353.csv')
@@ -179,3 +197,15 @@ database_main = database_main.merge(
 )
 
 database_main.to_csv('main_database.csv', index=False)
+
+database_main = database_main.drop(['country', 'ressource_rich_export_country'], axis=1)
+
+#retirando colunas não desejáveis
+
+database_main = database_main.drop([
+  'energy_matrix_share', 'oil_centered_matrix', 'import_oil', 'export_oil',
+  'cpi_index ', 'micronation', 'development_level'
+  ], axis=1)
+
+database_main.to_csv('main_database.csv', index=False)
+
