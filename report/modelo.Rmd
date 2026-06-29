@@ -1,0 +1,195 @@
+---
+title: "Análise Geográfica e Morfológica dos Pinguins Habitantes do Arquipélago Palmer, na Antártida"
+subtitle: "EST0142.1 - Avaliação Única"
+author: 
+  - "Estudante 01"
+  - "Estudante 02"
+  - "Estudante 03"
+date: "18 de junho de 2026"
+date-format: long
+papersize: "a4"
+lang: pt-BR
+output: 
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: false
+bibliography: "referencias.bib"
+csl: "abnt.csl"
+editor_options: 
+  chunk_output_type: console
+---
+
+<!--
+Crie um projeto chamado avaliacao com a seguinte estrutura:
+
+avaliacao/
+├── abnt.csl
+├── modelo.Rmd
+├── referencias.bib
+├── dados/
+│   └── pinguins.csv
+└── imagens/
+    └── culmen_depth.png
+
+A partir disso, edite o arquivo modelo.Rmd com o seu relatorio
+-->
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center')
+library(palmerpenguins)
+library(tidyverse)
+theme_set(theme_minimal())
+library(knitr)
+library(kableExtra)
+```
+
+
+# Resumo {-}
+
+Este relatório apresenta uma análise estatística descritiva do conjunto de dados Palmer Penguins. Este conjunto de dados documenta observações de 344 pinguins de três espécies nas ilhas do Arquipélago Palmer, Antártida. O objetivo principal é explorar as relações entre variáveis medidas a partir das aves e investigar como características como massa corporal, comprimento do bico e da nadadeira varia entre espécies, ilhas e sexos. Para isso, realizou-se a limpeza de dados ausentes e a formulação de duas perguntas de pesquisa. Percebemos que nem todas as espécies de pinguins estão presentes nas três ilhas do arquipélago e que encontramos uma ocorrência do Paradoxo de Simpson ao analisar a relação entre profundidade e comprimento dos bicos dos pinguins.
+
+
+# Introdução e Apresentação dos Dados
+
+
+O estudo da morfologia animal é fundamental para compreender a ecologia e os processos evolutivos das espécies. Este trabalho realiza uma análise descritiva de populações de pinguins na Antártida. Os dados utilizados provêm do pacote palmerpenguins, criado por @Horst2020 e disponível para a linguagem de programação R [@R2026].
+
+O conjunto de dados original possui informações a respeito de pinguins observados na natureza. O dataset contém 344 linhas e 8 colunas. As variáveis disponíveis para análise são as seguintes:
+
+* `species`: Espécie do pinguim (Adelie, Chinstrap, Gentoo) - Qualitativa Nominal
+
+* `island`: Ilha de observação na Antártida (Biscoe, Dream, Torgersen) - Qualitativa Nominal
+
+* `bill_length_mm`: Comprimento do bico do pinguim em milímetros - Quantitativa Contínua
+
+* `bill_depth_mm`: Profundidade do bico do pinguim em milímetros - Quantitativa Contínua
+
+* `flipper_length_mm`: Comprimento da nadadeira do pinguim em milímetros - Quantitativa Contínua
+
+* `body_mass_g`: Massa corporal do pinguim em gramas - Quantitativa Contínua
+
+* `sex`: Sexo do pinguim (fêmea, macho) - Qualitativa Nominal
+
+* `year`: Ano em que o estudo foi realizado (2007, 2008, 2009) - Quantitativa Contínua
+
+
+
+
+# Preparação e Limpeza dos Dados
+
+Todas as análises foram realizadas utilizando o software R [@R2026].
+
+Antes de iniciar a análise descritiva, foi realizada uma inspeção nos dados para avaliar a quantidade e o impacto de dados faltantes. Identificou-se a presença de valores `NA` (dados ausentes) concentrados principalmente na variável sex (11 casos) e em mensurações morfométricas (2 casos).
+
+
+```{r, include=FALSE}
+# leitura dos dados
+
+penguins <- read_csv(file = "dados/pinguins.csv")
+
+# contagem de dados faltantes
+
+penguins |>  
+  summarise(across(everything(), ~ sum(is.na(.)))) |> 
+  mutate(across(everything(), ~ ./nrow(penguins)*100))
+```
+
+Como a remoção dessas observações pontuais não compromete a representatividade da amostra total devido ao baixo percentual de perda (3,2% para sex, a coluna com o maior percentual de dados faltantes), optou-se por aplicar um filtro de remoção dos casos incompletos para garantir a consistência de todas as análises subsequentes.
+
+```{r, include=FALSE}
+# remocao de dados faltantes
+
+penguins_limpo <- 
+  penguins |> 
+  drop_na()
+```
+
+
+Após o procedimento de limpeza, a base de dados utilizada para análise contém `r nrow(penguins_limpo)` observações. Desta forma, é possível iniciar a análise exploratória dos dados.
+
+A Figura \@ref(fig:morfologia) ilustra as medidas dos pinguins que utilizamos nesta análise.
+
+
+
+```{r morfologia, out.width = "12cm", fig.cap="() Ilustração para indicar o que significam \\emph{length} e \\emph{depth} dos bicos dos pinguins. Fonte: \\url{https://allisonhorst.github.io/palmerpenguins/}."}
+include_graphics(path = "imagens/culmen_depth.png")
+```
+
+
+
+# Análise Exploratória
+
+Nesta seção, buscamos responder às duas perguntas de pesquisa delineadas no planejamento do projeto.
+
+## Pergunta 1: Como as três espécies de pinguins estão distribuídas geograficamente entre as ilhas do Arquipélago Palmer?
+
+Para responder a esta pergunta, realizou-se o cruzamento das variáveis qualitativas nominais species e island. Foram contados os números de ocorrências de cada espécie de pinguim para cada ilha do arquipélago. A Tabela \@ref(tab:pinguinsilha) apresenta o resultado desta análise.
+
+Como é possível perceber, nem todas as espécies estão presentes em todas as ilhas. Enquanto a espécie Adelie está distribuída por todo o arquipélago, as espécies Gentoo e Chinstrap são endêmicas das ilhas Biscoe e Dream, respectivamente.
+
+
+
+
+```{r }
+# tabela de dupla entrada de frequências
+
+penguins_limpo |> 
+  count(island, species) |> 
+  pivot_wider(names_from = island, values_from = n) |> 
+  mutate(across(everything(), ~ replace_na(.x, 0))) |> 
+  kable(caption = "(\\#tab:pinguinsilha) Contagem das espécies de pinguins por ilha.",
+        col.names = c("Espécie", "Biscoe", "Dream", "Torgensen"),
+        booktabs = TRUE) |> 
+  kable_styling()
+```
+
+
+
+## Pergunta 2: Como é a relação entre a profundidade e o comprimento dos bicos dos pinguins?
+
+
+Utilizou-se um gráfico de dispersão para ilustrar a relação entre estas duas variáveis.
+
+É possível perceber que, ao considerar todos os espécimes de pinguim, há uma tendência linear negativa na relação entre profundidade e comprimento dos bicos: quanto maior o comprimento do bico, menor a sua profundidade.
+
+Entretanto, ao agruparmos os animais de acordo com as suas espécies, a relação se inverte: quanto maior o comprimento do bico, maior a sua profundidade, caracterizando assim uma correlação linear positiva.
+
+
+```{r fig.cap="Relação entre profundidade e comprimento dos bicos dos pinguins do Arquipélago Palmer.", fig.width=6, fig.height=4}
+ggplot(penguins_limpo, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, colour = "black") +
+  labs(x = "Comprimento (mm)", y = "Profundidade (mm)", title = "")
+```
+
+
+```{r message = FALSE, fig.cap="Relação entre profundidade e comprimento dos bicos dos pinguins do Arquipélago Palmer discriminados por espécie.", fig.width=6, fig.height=4}
+ggplot(penguins_limpo, 
+       aes(x = bill_length_mm,y = bill_depth_mm, group = species, colour = species)) +
+  geom_point() + 
+  geom_smooth(aes(colour = species), method = "lm", se = FALSE) +
+  labs(x = "Comprimento (mm)", y = "Profundidade (mm)", title = "", colour = "Espécie") +
+  scale_colour_viridis_d()
+```
+
+
+
+
+\newpage 
+
+# Conclusões
+
+A análise exploratória do conjunto de dados Palmer Penguins permitiu identificar padrões relacionados à distribuição geográfica e às características morfológicas das espécies estudadas. Observou-se que as espécies apresentam uma distribuição distinta entre as ilhas do Arquipélago Palmer, com os pinguins Gentoo concentrados exclusivamente na ilha Biscoe, os Chinstrap apenas na ilha Dream e os Adelie distribuídos pelas três ilhas analisadas. Esses resultados sugerem uma forte associação entre espécie e local de ocorrência, evidenciando diferenças ecológicas na ocupação dos habitats.
+
+Em relação às características morfológicas, verificou-se que a relação entre comprimento e profundidade do bico depende da forma como os dados são analisados. Considerando todos os indivíduos em conjunto, observou-se uma tendência linear negativa entre essas variáveis; contudo, quando a análise foi realizada por espécie, a relação tornou-se positiva, explicitando uma característica conhecida como Paradoxo de Simpson. Esse resultado demonstra a importância de considerar grupos biológicos distintos durante a interpretação dos dados, evitando conclusões erradas que podem surgir a partir de dados agregados. De modo geral, o estudo evidenciou o potencial da análise estatística descritiva para revelar padrões ecológicos e morfológicos relevantes em populações de animais selvagens.
+
+
+
+# Referências
+
+
+
+
+
+
+
