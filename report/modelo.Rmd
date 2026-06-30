@@ -2,10 +2,10 @@
 title: "Análise Geográfica e Morfológica dos Pinguins Habitantes do Arquipélago Palmer, na Antártida"
 subtitle: "EST0142.1 - Avaliação Única"
 author: 
-  - "Estudante 01"
-  - "Estudante 02"
-  - "Estudante 03"
-date: "18 de junho de 2026"
+  - "Nicolas Morais Teixeira Lima"
+  - "João Augusto de Almeida Silva"
+  - "Mateus Cintra Brasil de Souza"
+date: "29 de junho de 2026"
 date-format: long
 papersize: "a4"
 lang: pt-BR
@@ -36,7 +36,6 @@ A partir disso, edite o arquivo modelo.Rmd com o seu relatorio
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center')
-library(palmerpenguins)
 library(tidyverse)
 theme_set(theme_minimal())
 library(knitr)
@@ -46,80 +45,89 @@ library(kableExtra)
 
 # Resumo {-}
 
-Este relatório apresenta uma análise estatística descritiva do conjunto de dados Palmer Penguins. Este conjunto de dados documenta observações de 344 pinguins de três espécies nas ilhas do Arquipélago Palmer, Antártida. O objetivo principal é explorar as relações entre variáveis medidas a partir das aves e investigar como características como massa corporal, comprimento do bico e da nadadeira varia entre espécies, ilhas e sexos. Para isso, realizou-se a limpeza de dados ausentes e a formulação de duas perguntas de pesquisa. Percebemos que nem todas as espécies de pinguins estão presentes nas três ilhas do arquipélago e que encontramos uma ocorrência do Paradoxo de Simpson ao analisar a relação entre profundidade e comprimento dos bicos dos pinguins.
-
+Diante dos desafios globais envolvendo os fluxos de petróleo e a sua dependência econômica, entram em cena os denominados Estados Rentistas, que são Estados nacionais em que o petróleo funciona como principal fonte de financiamento para a economia e a máquina estatal, que são fortemente marcados pela grande disparidade na forma como o governo é dirigido, sendo muitas vezes rotulados de "autoritários", "ineficientes" ou "frágeis (economicamente)". Desse modo, o trabalho vem avaliar se essas características de fato pertecem a esses grupos.
 
 # Introdução e Apresentação dos Dados
 
+O estudo se baseou nas definições tradicionais da literatura para classificar os Estados Rentistas (@beblawi1987rentier; @hasan2024stepping), trazendo ênfase principal na forte dependência em relação ao petróleo para fazer a economia funcionar corretamente.
 
-O estudo da morfologia animal é fundamental para compreender a ecologia e os processos evolutivos das espécies. Este trabalho realiza uma análise descritiva de populações de pinguins na Antártida. Os dados utilizados provêm do pacote palmerpenguins, criado por @Horst2020 e disponível para a linguagem de programação R [@R2026].
+Dessa forma, o trabalho pretende entender como Estados Rentistas se comportam quando estudados sob a ótica de diversos indicadores sócio-governamentais. A hipótese inicial é de que a maior dependência no petróleo gera distorções na qualidade institucional — como na lógica do “sem taxação sem representação”, em que Estados não taxam cidadãos e por consequência são mais autoritários — e nos aspectos socio-econômicos — ao destruir a indústria local por causa da “doença holandesa”, dependente somente de uma fonte de recursos (@vlaskamp2025pathways).
 
-O conjunto de dados original possui informações a respeito de pinguins observados na natureza. O dataset contém 344 linhas e 8 colunas. As variáveis disponíveis para análise são as seguintes:
+Os dados foram originados de diversas bases de dados, em especial do Fundo Monetário Internacional e do Banco Mundial, segue-se abaixo a lista de variáveis:
 
-* `species`: Espécie do pinguim (Adelie, Chinstrap, Gentoo) - Qualitativa Nominal
+* `country`: Países reconhecidos pela ONU (Qualitativa Nominal.
 
-* `island`: Ilha de observação na Antártida (Biscoe, Dream, Torgersen) - Qualitativa Nominal
+* `gov_stability_x`: índice que mede a estabilidade governamental de 0-100.
 
-* `bill_length_mm`: Comprimento do bico do pinguim em milímetros - Quantitativa Contínua
+* `bureaucratic_eff_x`: índice que mede a eficiência da burocracia/administração governamental de 0-100.
 
-* `bill_depth_mm`: Profundidade do bico do pinguim em milímetros - Quantitativa Contínua
+* `rule_of_law_x`: mede a segurança jurídica do país de 0-100.
 
-* `flipper_length_mm`: Comprimento da nadadeira do pinguim em milímetros - Quantitativa Contínua
+* `corruption_control_x`: mede a percepção geral de corrupção de um país de 0-100.
 
-* `body_mass_g`: Massa corporal do pinguim em gramas - Quantitativa Contínua
+* `inflation_index_x`: Inflação percebida em 1 ano.
 
-* `sex`: Sexo do pinguim (fêmea, macho) - Qualitativa Nominal
+* `Unemployement`: porcentagem de desemprego reportado em 1 ano.
 
-* `year`: Ano em que o estudo foi realizado (2007, 2008, 2009) - Quantitativa Contínua
+* `industry_share_gdp_x`: participação da indústria na economia.
 
+* `life_expectancy_x`: expectativa de vida ao nascer média em um país.
 
+* `hdi`: mede o Índice de Desenvolvimento Humano (IDH) de um país de 0-1.
 
+* `tax_share_gdp_x`: participação da taxação no total do PIB de um país.
+
+* `gdp_capita_ppp_x`: renda média por pessoa ajustada ao poder de compra local.
+
+* `oil_share_gdp_x`: Porcentagem do PIB proveniente de receitas do petróleo.
+
+* `fuel_share_exports_x`: Porcentagem de exportação de combustíveis sobre o total de mercadorias.
 
 # Preparação e Limpeza dos Dados
 
-Todas as análises foram realizadas utilizando o software R [@R2026].
+A limpeza dos dados foi feita usando o Python e a sua biblioteca chamada pandas.
 
-Antes de iniciar a análise descritiva, foi realizada uma inspeção nos dados para avaliar a quantidade e o impacto de dados faltantes. Identificou-se a presença de valores `NA` (dados ausentes) concentrados principalmente na variável sex (11 casos) e em mensurações morfométricas (2 casos).
+Os dados estavam em tabelas separadas e em configurações diferentes, optamos por juntar todos os dados utilizando o Python para adequar corretamente, além de criar um script visando traduzir os países para o modelo padrão usado pelo Banco Mundial, de modo a evitar erros na hora de aplicar a transferência de dados.
 
+Após o processo, isso gerou a seguinte base de dados:
 
-```{r, include=FALSE}
-# leitura dos dados
+```{python, include=FALSE}
+import pandas as pd
 
-penguins <- read_csv(file = "dados/pinguins.csv")
+pd.set_option('display.max_columns', 6)
 
-# contagem de dados faltantes
+database = pd.read_csv('data-transform/main_database.csv')
 
-penguins |>  
-  summarise(across(everything(), ~ sum(is.na(.)))) |> 
-  mutate(across(everything(), ~ ./nrow(penguins)*100))
+database
 ```
 
-Como a remoção dessas observações pontuais não compromete a representatividade da amostra total devido ao baixo percentual de perda (3,2% para sex, a coluna com o maior percentual de dados faltantes), optou-se por aplicar um filtro de remoção dos casos incompletos para garantir a consistência de todas as análises subsequentes.
+Julgamos que a variável *rentier-state* que é qualitativa nominal merece ser melhor explicada, de forma a entender como se chegou a essa variável, tem-se os delimitadores de 20% das exportações no mínimo envolvendo combustíveis e 10% do PIB proveniente do petróleo (@vlaskamp2025pathways; @mohtadi2025gendered). O modelo, de forma traduzida, se limita a classificar como "rentista" caso os 2 critérios sejam atendidos, "semi-rentista", caso apenas 1 seja atentido, "não-rentista", caso contrário. A fim de evitar distorções pela falta de dados, variáveis auxiliares foram colocadas para essa classificação. Ou seja, caso os dados para os 2 critérios faltem, o país é classificado como um "rentista" se for rico em recursos e exportador de combustíveis.
 
-```{r, include=FALSE}
-# remocao de dados faltantes
+Segue a função abaixo
 
-penguins_limpo <- 
-  penguins |> 
-  drop_na()
+```{python}
+
+  def classify(df):
+    gdp_more_than_10 = df['oil_share_gdp_x'] >= 10
+    exports_more_than_20 = df['fuel_share_exports_x'] >= 20
+      
+    if gdp_more_than_10  and exports_more_than_20:
+      return 'rentier state'
+    elif gdp_more_than_10  or exports_more_than_20:
+      return 'semi-rentier state'
+    elif df['FuelExporting'] == 'Fuel exporter' and df['ResourceRich'] == 'Resource-rich':
+      return 'rentier state'
+    else:
+      return 'non rentier state'
+    
 ```
 
 
-Após o procedimento de limpeza, a base de dados utilizada para análise contém `r nrow(penguins_limpo)` observações. Desta forma, é possível iniciar a análise exploratória dos dados.
-
-A Figura \@ref(fig:morfologia) ilustra as medidas dos pinguins que utilizamos nesta análise.
-
-
-
-```{r morfologia, out.width = "12cm", fig.cap="() Ilustração para indicar o que significam \\emph{length} e \\emph{depth} dos bicos dos pinguins. Fonte: \\url{https://allisonhorst.github.io/palmerpenguins/}."}
-include_graphics(path = "imagens/culmen_depth.png")
-```
-
-
+Após o procedimento de limpeza, a base de dados utilizada para análise contém `len(database)` observações. Desta forma, é possível iniciar a análise exploratória dos dados.
 
 # Análise Exploratória
 
-Nesta seção, buscamos responder às duas perguntas de pesquisa delineadas no planejamento do projeto.
+Partindo para a análise exploratória, responderemos as 5 questões levantadas na pesquisa.
 
 ## Pergunta 1: Como as três espécies de pinguins estão distribuídas geograficamente entre as ilhas do Arquipélago Palmer?
 

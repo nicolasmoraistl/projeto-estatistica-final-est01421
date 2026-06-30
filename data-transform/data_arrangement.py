@@ -209,3 +209,19 @@ database_main = database_main.drop([
 
 database_main.to_csv('main_database.csv', index=False)
 
+def classify(df):
+  gdp_more_than_10 = df['oil_share_gdp_x'] >= 10
+  exports_more_than_20 = df['fuel_share_exports_x'] >= 20
+    
+  if gdp_more_than_10  and exports_more_than_20:
+    return 'rentier state'
+  elif gdp_more_than_10  or exports_more_than_20:
+    return 'semi-rentier state'
+  elif df['FuelExporting'] == 'Fuel exporter' and df['ResourceRich'] == 'Resource-rich':
+    return 'rentier state'
+  else:
+    return 'non rentier state'
+  
+database_main['rentier_state'] = database_main.apply(classify, axis=1)
+
+database_main.to_csv('main_database.csv', index=False)
