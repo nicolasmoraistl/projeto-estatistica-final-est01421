@@ -106,9 +106,9 @@ plot_unemployment <- ggplot(dados, aes(x = rentier_state, y = unemployement_x, f
   geom_boxplot(alpha = 0.7, outlier.color = "red") +
   theme_classic() +
   labs(
-    title = "Unemployment Rates Distribution",
-    x = "State Type",
-    y = "Unemployment Rate (%)"
+    title = "Distribuição da taxa de desemprego",
+    x = "Tipo de Estado",
+    y = "Taxa de desemprego (%)"
   ) +
   theme(
     legend.position = "none",
