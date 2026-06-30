@@ -9,7 +9,7 @@ library(patchwork)
 
 #Loading the CSV file
 
-dados_original <- read_csv("/cloud/project/projeto-estatistica-final-est01421/data-transform/main_database.csv")
+dados_original <- read_csv("data-transform/main_database.csv")
 
 #Force absolute conversion of all numeric columns handling commas/texts automatically
 
@@ -196,7 +196,7 @@ plot_q5 <- ggplot(macro_data, aes(x = rentier_state, y = Value, fill = rentier_s
   
 #  ==============================================================================
   
-  print(plot_q1) # Institutional Quality (Excluding Non-Rentier)
+print(plot_q1) # Institutional Quality (Excluding Non-Rentier)
 
 print(plot_q2) # Dutch Disease Boxplots (All groups, with rotated axis text)
 
@@ -205,3 +205,4 @@ print(plot_q3) # Taxation vs Governance (Excluding Non-Rentier)
 print(plot_q4) # Development Trends Over Time
 
 print(plot_q5) # Macroeconomic Bars
+

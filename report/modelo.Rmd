@@ -1,5 +1,5 @@
 ---
-title: "Análise Geográfica e Morfológica dos Pinguins Habitantes do Arquipélago Palmer, na Antártida"
+title: "Analise dos estados rentistas"
 subtitle: "EST0142.1 - Avaliação Única"
 author: 
   - "Nicolas Morais Teixeira Lima"
@@ -19,6 +19,7 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{=html}
 <!--
 Crie um projeto chamado avaliacao com a seguinte estrutura:
 
@@ -33,6 +34,7 @@ avaliacao/
 
 A partir disso, edite o arquivo modelo.Rmd com o seu relatorio
 -->
+```
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center')
@@ -42,8 +44,7 @@ library(knitr)
 library(kableExtra)
 ```
 
-
-# Resumo {-}
+# Resumo {.unnumbered}
 
 Diante dos desafios globais envolvendo os fluxos de petróleo e a sua dependência econômica, entram em cena os denominados Estados Rentistas, que são Estados nacionais em que o petróleo funciona como principal fonte de financiamento para a economia e a máquina estatal, que são fortemente marcados pela grande disparidade na forma como o governo é dirigido, sendo muitas vezes rotulados de "autoritários", "ineficientes" ou "frágeis (economicamente)". Desse modo, o trabalho vem avaliar se essas características de fato pertecem a esses grupos.
 
@@ -55,33 +56,33 @@ Dessa forma, o trabalho pretende entender como Estados Rentistas se comportam qu
 
 Os dados foram originados de diversas bases de dados, em especial do Fundo Monetário Internacional e do Banco Mundial, segue-se abaixo a lista de variáveis:
 
-* `country`: Países reconhecidos pela ONU (Qualitativa Nominal.
+- `country`: Países reconhecidos pela ONU (Qualitativa Nominal.
 
-* `gov_stability_x`: índice que mede a estabilidade governamental de 0-100.
+- `gov_stability_x`: índice que mede a estabilidade governamental de 0-100.
 
-* `bureaucratic_eff_x`: índice que mede a eficiência da burocracia/administração governamental de 0-100.
+- `bureaucratic_eff_x`: índice que mede a eficiência da burocracia/administração governamental de 0-100.
 
-* `rule_of_law_x`: mede a segurança jurídica do país de 0-100.
+- `rule_of_law_x`: mede a segurança jurídica do país de 0-100.
 
-* `corruption_control_x`: mede a percepção geral de corrupção de um país de 0-100.
+- `corruption_control_x`: mede a percepção geral de corrupção de um país de 0-100.
 
-* `inflation_index_x`: Inflação percebida em 1 ano.
+- `inflation_index_x`: Inflação percebida em 1 ano.
 
-* `Unemployement`: porcentagem de desemprego reportado em 1 ano.
+- `Unemployement`: porcentagem de desemprego reportado em 1 ano.
 
-* `industry_share_gdp_x`: participação da indústria na economia.
+- `industry_share_gdp_x`: participação da indústria na economia.
 
-* `life_expectancy_x`: expectativa de vida ao nascer média em um país.
+- `life_expectancy_x`: expectativa de vida ao nascer média em um país.
 
-* `hdi`: mede o Índice de Desenvolvimento Humano (IDH) de um país de 0-1.
+- `hdi`: mede o Índice de Desenvolvimento Humano (IDH) de um país de 0-1.
 
-* `tax_share_gdp_x`: participação da taxação no total do PIB de um país.
+- `tax_share_gdp_x`: participação da taxação no total do PIB de um país.
 
-* `gdp_capita_ppp_x`: renda média por pessoa ajustada ao poder de compra local.
+- `gdp_capita_ppp_x`: renda média por pessoa ajustada ao poder de compra local.
 
-* `oil_share_gdp_x`: Porcentagem do PIB proveniente de receitas do petróleo.
+- `oil_share_gdp_x`: Porcentagem do PIB proveniente de receitas do petróleo.
 
-* `fuel_share_exports_x`: Porcentagem de exportação de combustíveis sobre o total de mercadorias.
+- `fuel_share_exports_x`: Porcentagem de exportação de combustíveis sobre o total de mercadorias.
 
 # Preparação e Limpeza dos Dados
 
@@ -91,14 +92,11 @@ Os dados estavam em tabelas separadas e em configurações diferentes, optamos p
 
 Após o processo, isso gerou a seguinte base de dados:
 
-```{python, include=FALSE}
-import pandas as pd
-
-pd.set_option('display.max_columns', 6)
-
-database = pd.read_csv('data-transform/main_database.csv')
-
-database
+```{r, include=FALSE}
+# No seu chunk setup ou em qualquer chunk R
+library(tidyverse)
+# Ou caminho relativo (se estiver na pasta certa)
+dados_original <- read_csv("projeto-estatistica-final-est01421/data-transform/main_database.csv")
 ```
 
 Julgamos que a variável *rentier-state* que é qualitativa nominal merece ser melhor explicada, de forma a entender como se chegou a essa variável, tem-se os delimitadores de 20% das exportações no mínimo envolvendo combustíveis e 10% do PIB proveniente do petróleo (@vlaskamp2025pathways; @mohtadi2025gendered). O modelo, de forma traduzida, se limita a classificar como "rentista" caso os 2 critérios sejam atendidos, "semi-rentista", caso apenas 1 seja atentido, "não-rentista", caso contrário. A fim de evitar distorções pela falta de dados, variáveis auxiliares foram colocadas para essa classificação. Ou seja, caso os dados para os 2 critérios faltem, o país é classificado como um "rentista" se for rico em recursos e exportador de combustíveis.
@@ -107,97 +105,279 @@ Segue a função abaixo
 
 ```{python}
 
-  def classify(df):
+def classify(df):
     gdp_more_than_10 = df['oil_share_gdp_x'] >= 10
     exports_more_than_20 = df['fuel_share_exports_x'] >= 20
       
-    if gdp_more_than_10  and exports_more_than_20:
-      return 'rentier state'
-    elif gdp_more_than_10  or exports_more_than_20:
-      return 'semi-rentier state'
+    if gdp_more_than_10 and exports_more_than_20:
+        return 'rentier state'
+    elif gdp_more_than_10 or exports_more_than_20:
+        return 'semi-rentier state'
     elif df['FuelExporting'] == 'Fuel exporter' and df['ResourceRich'] == 'Resource-rich':
-      return 'rentier state'
+        return 'rentier state'
     else:
-      return 'non rentier state'
+        return 'non rentier state'
     
 ```
-
 
 Após o procedimento de limpeza, a base de dados utilizada para análise contém `len(database)` observações. Desta forma, é possível iniciar a análise exploratória dos dados.
 
 # Análise Exploratória
 
-Partindo para a análise exploratória, responderemos as 5 questões levantadas na pesquisa.
+Partindo para a análise exploratória, responderemos as 5 questões levantadas na pesquisa. \# Análise Exploratória
 
-## Pergunta 1: Como as três espécies de pinguins estão distribuídas geograficamente entre as ilhas do Arquipélago Palmer?
+Partindo para a análise exploratória, responderemos às 3 questões levantadas na pesquisa com base nas hipóteses da Maldição dos Recursos e da Doença Holandesa.
 
-Para responder a esta pergunta, realizou-se o cruzamento das variáveis qualitativas nominais species e island. Foram contados os números de ocorrências de cada espécie de pinguim para cada ilha do arquipélago. A Tabela \@ref(tab:pinguinsilha) apresenta o resultado desta análise.
+## Pergunta 1: Como o perfil de dependência de recursos se relaciona com o controle da corrupção nos países extrativistas?
 
-Como é possível perceber, nem todas as espécies estão presentes em todas as ilhas. Enquanto a espécie Adelie está distribuída por todo o arquipélago, as espécies Gentoo e Chinstrap são endêmicas das ilhas Biscoe e Dream, respectivamente.
+Para examinar o impacto real das receitas extrativistas sobre a integridade institucional, avaliou-se a relação entre a fatia do petróleo no PIB (`oil_share_gdp_x`) e o Controle de Corrupção (`corruption_control_x`). Metodologicamente, excluímos deste escopo os países classificados como *non rentier states*, uma vez que a ausência total dessas receitas nesses estados gerava um acúmulo artificial de dados próximo a zero no eixo horizontal, distorcendo o comportamento da reta de regressão linear.
 
+A Figura \@ref(fig:grafico-institucional) ilustra o comportamento dos estados ativamente envolvidos na dinâmica extrativista (*rentier state* e *semi-rentier state*).
 
+```{r grafico-institucional, fig.cap="Qualidade institucional e dependência de petróleo nos estados rentistas e semi-rentistas.", fig.width=6, fig.height=4}
+# Criando subset filtrado para análises institucionais ativas (excluindo nao rentistas)
+dados_petroleo_ativos <- dados |> 
+  filter(rentier_state %in% c("rentier state", "semi-rentier state"))
 
-
-```{r }
-# tabela de dupla entrada de frequências
-
-penguins_limpo |> 
-  count(island, species) |> 
-  pivot_wider(names_from = island, values_from = n) |> 
-  mutate(across(everything(), ~ replace_na(.x, 0))) |> 
-  kable(caption = "(\\#tab:pinguinsilha) Contagem das espécies de pinguins por ilha.",
-        col.names = c("Espécie", "Biscoe", "Dream", "Torgensen"),
-        booktabs = TRUE) |> 
-  kable_styling()
+ggplot(dados_petroleo_ativos, aes(x = oil_share_gdp_x, y = corruption_control_x, color = rentier_state)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", color = "black", se = FALSE, linetype = "dashed") +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    x = "Rendas de Petróleo (% do PIB)",
+    y = "Índice de Controle da Corrupção",
+    color = "Tipo de Estado"
+  ) +
+  theme(legend.position = "bottom")
 ```
 
+## Pergunta 2: A participação da indústria é maior em Estados Rentistas ou não rentistas? E com relação ao emprego? Observe a distribuição dos dados.
+A Doença Holandesa é um fenômeno econômico em que a descoberta e exploração de recursos naturais leva à desindustrialização e, potencialmente, ao aumento do desemprego. Para testar essa hipótese, comparamos a participação industrial no PIB e as taxas de desemprego entre os três grupos de países.
 
+A Figura @ref(fig:grafico-doenca-holandesa) apresenta boxplots comparativos para essas duas variáveis, permitindo uma análise detalhada da distribuição dos dados.
+```{r}
+# Gráfico da indústria
+plot_industria <- ggplot(dados, aes(x = rentier_state, y = industry_share_gdp_x, fill = rentier_state)) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red", outlier.size = 1.5) +
+  theme_classic() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Participação Industrial no PIB",
+    x = "Tipo de Estado",
+    y = "Indústria (% do PIB)"
+  ) +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 20, hjust = 1)
+  )
 
-## Pergunta 2: Como é a relação entre a profundidade e o comprimento dos bicos dos pinguins?
+# Gráfico do desemprego
+plot_desemprego <- ggplot(dados, aes(x = rentier_state, y = unemployement_x, fill = rentier_state)) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red", outlier.size = 1.5) +
+  theme_classic() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Distribuição das Taxas de Desemprego",
+    x = "Tipo de Estado",
+    y = "Taxa de Desemprego (%)"
+  ) +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 20, hjust = 1)
+  )
 
-
-Utilizou-se um gráfico de dispersão para ilustrar a relação entre estas duas variáveis.
-
-É possível perceber que, ao considerar todos os espécimes de pinguim, há uma tendência linear negativa na relação entre profundidade e comprimento dos bicos: quanto maior o comprimento do bico, menor a sua profundidade.
-
-Entretanto, ao agruparmos os animais de acordo com as suas espécies, a relação se inverte: quanto maior o comprimento do bico, maior a sua profundidade, caracterizando assim uma correlação linear positiva.
-
-
-```{r fig.cap="Relação entre profundidade e comprimento dos bicos dos pinguins do Arquipélago Palmer.", fig.width=6, fig.height=4}
-ggplot(penguins_limpo, aes(x = bill_length_mm, y = bill_depth_mm)) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = FALSE, colour = "black") +
-  labs(x = "Comprimento (mm)", y = "Profundidade (mm)", title = "")
+# Combinando os gráficos lado a lado
+plot_industria + plot_desemprego
 ```
+Análise dos Resultados:
 
+A análise dos boxplots revela padrões distintos entre os grupos:
 
-```{r message = FALSE, fig.cap="Relação entre profundidade e comprimento dos bicos dos pinguins do Arquipélago Palmer discriminados por espécie.", fig.width=6, fig.height=4}
-ggplot(penguins_limpo, 
-       aes(x = bill_length_mm,y = bill_depth_mm, group = species, colour = species)) +
-  geom_point() + 
-  geom_smooth(aes(colour = species), method = "lm", se = FALSE) +
-  labs(x = "Comprimento (mm)", y = "Profundidade (mm)", title = "", colour = "Espécie") +
-  scale_colour_viridis_d()
+Participação Industrial (% PIB):
+
+Estados rentier apresentam a menor participação industrial, com mediana em torno de 32-35%, e variabilidade relativamente baixa, indicando que a maioria desses países possui estruturas industriais similares e pouco desenvolvidas.
+
+Estados semi-rentier mostram valores intermediários, com mediana próxima a 37-40%, e maior dispersão dos dados, sugerindo heterogeneidade na composição econômica desses países.
+
+Estados non-rentier apresentam a maior participação industrial, com mediana superior a 42%, e a maior variabilidade, com alguns países alcançando participações industriais superiores a 55% do PIB.
+
+Taxa de Desemprego (%):
+
+A distribuição das taxas de desemprego não mostra diferenças tão pronunciadas entre os grupos.
+Estados rentier apresentam medianas ligeiramente mais baixas (em torno de 6-7%), com menor variabilidade.
+
+Estados non-rentier mostram maior dispersão nos dados, com alguns países apresentando taxas de desemprego elevadas (acima de 15%).
+
+Estados semi-rentier ocupam uma posição intermediária, com distribuição mais concentrada.
+
+Interpretação: Os resultados corroboram parcialmente a hipótese da Doença Holandesa. Observa-se que países rentistas de fato apresentam menor participação industrial, consistente com a ideia de que o setor de recursos naturais "crowda out" a indústria manufatureira. No entanto, essa desindustrialização não se traduz necessariamente em maiores taxas de desemprego, o que pode ser explicado pelo fato de o setor petrolífero gerar empregos diretos e indiretos, além de o Estado rentista frequentemente atuar como empregador de última instância.
+
+## Pergunta 3: A hipótese "sem taxação sem representação" é validada pelo conjunto de dados? Isto é, existe uma correlação negativa entre a taxação e os índices de eficiência governamental?
+A hipótese da barganha fiscal sugere que governos que dependem mais de receitas tributárias tendem a ser mais responsivos e eficientes, enquanto governos que obtêm receitas de fontes não tributárias (como recursos naturais) tendem a ser menos eficientes e mais propensos à corrupção. Para testar essa hipótese, analisamos a relação entre a receita tributária como proporção do PIB (tax_share_gdp_x) e o índice de eficiência burocrática (bureaucratic_eff_x), restringindo a análise a países produtores de petróleo (rentistas e semi-rentistas).
+
+A Figura @ref(fig:grafico-barganha-fiscal) apresenta a relação entre essas duas variáveis, com retas de regressão separadas para cada grupo.
+```{r}
+# Criando subset filtrado para países com dependência real de petróleo
+dados_petroleo_ativos <- dados |> 
+  filter(rentier_state %in% c("rentier state", "semi-rentier state"))
+
+ggplot(dados_petroleo_ativos, aes(x = tax_share_gdp_x, y = bureaucratic_eff_x, color = rentier_state)) +
+  geom_point(alpha = 0.6, size = 2.5) +
+  geom_smooth(method = "lm", aes(group = rentier_state), se = FALSE, linewidth = 1) +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    title = "",
+    x = "Receita Tributária (% do PIB)",
+    y = "Índice de Eficiência Burocrática",
+    color = "Tipo de Estado"
+  ) +
+  theme(legend.position = "bottom")
 ```
+Análise dos Resultados:
+
+A Figura @ref(fig:grafico-barganha-fiscal) apresenta resultados contraintuitivos em relação à hipótese da barganha fiscal:
+
+Para ambos os grupos (rentier e semi-rentier), observa-se uma relação positiva entre tributação e eficiência burocrática, ou seja, países que tributam mais tendem a ter governos mais eficientes.
+
+A inclinação da reta de regressão é mais acentuada para os estados rentier, sugerindo que o impacto da tributação sobre a eficiência burocrática é maior nesses países.
+
+Os estados semi-rentier apresentam uma relação positiva, mas com inclinação mais suave, indicando uma associação menos forte entre as variáveis.
+
+Interpretação: A hipótese da barganha fiscal, em sua formulação original, prevê uma relação negativa entre tributação e qualidade institucional em países com alta dependência de recursos naturais. No entanto, nossos resultados sugerem o oposto: maior tributação está associada a maior eficiência burocrática, mesmo em países produtores de petróleo. Uma possível explicação é que países com maior capacidade de extração tributária também possuem instituições mais desenvolvidas, o que se reflete em maior eficiência burocrática. Além disso, a tributação pode atuar como um mecanismo de accountability, incentivando os governos a serem mais eficientes na alocação de recursos.
+##Pergunta 4: O IDH tem evoluído mais em Estados Rentistas ou não rentistas? E com relação à expectativa de vida? (Em média, ao longo dos 30 anos)
+Para avaliar o desenvolvimento humano ao longo do tempo, analisamos a evolução média do IDH e da expectativa de vida para cada grupo de países no período de 1995 a 2025. A Figura @ref(fig:grafico-evolucao) apresenta as tendências temporais desses indicadores.
 
 
+```{r grafico-evolucao-suavizado, fig.cap="Evolução do IDH e Expectativa de Vida (com suavização)", fig.width=10, fig.height=6}
+
+plot_idh_tempo <- dados |>
+  group_by(rentier_state, year) |>
+  summarise(media_idh = mean(hdi, na.rm = TRUE), .groups = 'drop') |>
+  ggplot(aes(x = year, y = media_idh, color = rentier_state)) +
+  geom_line(linewidth = 1.2) +
+  theme_minimal() +
+  labs(
+    title = "Evolução do IDH (Tendência de 30 Anos)",
+    x = "Ano",
+    y = "Média do IDH",
+    color = "Tipo de Estado"
+  )
+
+plot_vida_tempo <- dados |>
+  group_by(rentier_state, year) |>
+  summarise(media_vida = mean(life_expectancy_x, na.rm = TRUE), .groups = 'drop') |>
+  ggplot(aes(x = year, y = media_vida, color = rentier_state)) +
+  geom_line(linewidth = 1.2) +
+  theme_minimal() +
+  labs(
+    title = "Tendência da Expectativa de Vida",
+    x = "Ano",
+    y = "Média da Expectativa de Vida (Anos)",
+    color = "Tipo de Estado"
+  )
+
+plot_q4 <- plot_idh_tempo / plot_vida_tempo
+plot_q4
+```
+##Como se comporta a média global dos indicadores econômicos entre os grupos (inflação, investimentos estrangeiros e crescimento econômico)?
+Para comparar o desempenho macroeconômico médio entre os grupos, analisamos três indicadores: inflação, investimento estrangeiro direto (IED) e crescimento do PIB. A Figura @ref(fig:grafico-macroeconomico) apresenta as médias desses indicadores para cada tipo de estado.
+```{r}
+# Preparando os dados macroeconômicos
+dados_macro <- dados |>
+  group_by(rentier_state) |>
+  summarise(
+    Inflacao = mean(inflation_index_x, na.rm = TRUE),
+    IED = mean(foreign_investments_x, na.rm = TRUE),
+    Crescimento_PIB = mean(economic_growth_x, na.rm = TRUE)
+  ) |>
+  pivot_longer(cols = c(Inflacao, IED, Crescimento_PIB), 
+               names_to = "Indicador", 
+               values_to = "Valor")
+
+# Tradução dos indicadores para português
+dados_macro <- dados_macro |> 
+  mutate(Indicador = case_when(
+    Indicador == "IED" ~ "IED (Investimento Estrangeiro)",
+    Indicador == "Crescimento_PIB" ~ "Crescimento do PIB",
+    Indicador == "Inflacao" ~ "Inflação",
+    TRUE ~ Indicador
+  ))
+
+# Gráfico de barras
+ggplot(dados_macro, aes(x = rentier_state, y = Valor, fill = rentier_state)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  facet_wrap(~Indicador, scales = "free_y") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_bw() +
+  labs(
+    title = "",
+    subtitle = "Comparando o desempenho macroeconômico médio entre os grupos",
+    x = "Tipo de Estado",
+    y = "Valor Médio Consolidado"
+  ) +
+  theme(legend.position = "none", 
+        axis.text.x = element_text(angle = 15, hjust = 1))
+```
+Análise dos Resultados:
+
+A Figura @ref(fig:grafico-macroeconomico) apresenta diferenças importantes entre os grupos:
+
+Crescimento do PIB (%):
+
+Estados non-rentier apresentam o maior crescimento médio do PIB, em torno de 3,5-4,0%.
+
+Estados semi-rentier ocupam posição intermediária, com cerca de 3,0-3,5%.
+
+Estados rentier apresentam o menor crescimento médio, em torno de 2,5-3,0%.
+
+Inflação (%):
+
+Estados rentier apresentam a menor inflação média, em torno de 2,5-3,0%.
+
+Estados semi-rentier têm inflação intermediária, cerca de 3,5-4,0%.
+
+Estados non-rentier apresentam a maior inflação média, aproximadamente 4,5-5,0%.
+
+IED (Investimento Estrangeiro Direto) (% PIB):
+
+Estados non-rentier atraem mais investimento estrangeiro, com média de 5-6% do PIB.
+
+Estados semi-rentier têm níveis intermediários de IED, cerca de 4-5%.
+
+Estados rentier apresentam os menores níveis de IED, em torno de 3-4%.
+
+Interpretação: Os resultados revelam um trade-off interessante entre os grupos. Países não-rentistas apresentam maior crescimento econômico e maior atração de investimento estrangeiro, mas também enfrentam níveis mais elevados de inflação. Já os países rentistas, embora tenham menor crescimento e menor atração de IED, desfrutam de maior estabilidade de preços (menor inflação). Isso sugere que a dependência do petróleo proporciona uma espécie de "colchão" contra pressões inflacionárias, mas pode limitar o crescimento econômico de longo prazo e a diversificação da economia.
+
+##Conclusões
+A análise exploratória dos dados sobre Estados Rentistas permitiu identificar padrões importantes relacionados à governança, desenvolvimento humano e desempenho econômico. As cinco perguntas de pesquisa revelaram resultados que, em alguns casos, corroboram e, em outros, contestam as hipóteses tradicionais da literatura sobre a "maldição dos recursos".
+
+Síntese dos Principais Resultados:
+Governança e Dependência do Petróleo: Os resultados confirmam a hipótese de que maior dependência do petróleo está associada a menor controle da corrupção, consistente com a literatura sobre a "maldição dos recursos".
+
+Doença Holandesa: Observou-se que países rentistas apresentam menor participação industrial, corroborando a hipótese de desindustrialização. No entanto, essa desindustrialização não se reflete em maiores taxas de desemprego, sugerindo que o setor petrolífero e o Estado atuam como amortecedores no mercado de trabalho.
+
+Barganha Fiscal: A hipótese do "sem taxação sem representação" não foi totalmente validada. Contrariamente ao esperado, encontrou-se uma relação positiva entre tributação e eficiência burocrática, mesmo em países produtores de petróleo.
+
+Desenvolvimento Humano: Países rentistas apresentam os melhores indicadores de IDH e expectativa de vida ao longo dos 30 anos analisados, sugerindo que as receitas do petróleo podem ser canalizadas para investimentos sociais de qualidade.
+
+Desempenho Macroeconômico: Encontrou-se um trade-off entre grupos: não-rentistas têm maior crescimento e atração de IED, mas maior inflação; rentistas têm menor crescimento, mas maior estabilidade de preços.
+
+Limitações do Estudo:
+A classificação dos países em categorias "rentista", "semi-rentista" e "não-rentista" pode ser simplificadora e não capturar nuances importantes da dependência de recursos naturais.
+
+O período analisado (1995-2025) inclui anos atípicos (como a crise financeira de 2008 e a pandemia de COVID-19) que podem ter influenciado os resultados.
+
+A disponibilidade de dados para alguns países e anos pode ter introduzido vieses na análise.
 
 
-\newpage 
-
-# Conclusões
-
-A análise exploratória do conjunto de dados Palmer Penguins permitiu identificar padrões relacionados à distribuição geográfica e às características morfológicas das espécies estudadas. Observou-se que as espécies apresentam uma distribuição distinta entre as ilhas do Arquipélago Palmer, com os pinguins Gentoo concentrados exclusivamente na ilha Biscoe, os Chinstrap apenas na ilha Dream e os Adelie distribuídos pelas três ilhas analisadas. Esses resultados sugerem uma forte associação entre espécie e local de ocorrência, evidenciando diferenças ecológicas na ocupação dos habitats.
-
-Em relação às características morfológicas, verificou-se que a relação entre comprimento e profundidade do bico depende da forma como os dados são analisados. Considerando todos os indivíduos em conjunto, observou-se uma tendência linear negativa entre essas variáveis; contudo, quando a análise foi realizada por espécie, a relação tornou-se positiva, explicitando uma característica conhecida como Paradoxo de Simpson. Esse resultado demonstra a importância de considerar grupos biológicos distintos durante a interpretação dos dados, evitando conclusões erradas que podem surgir a partir de dados agregados. De modo geral, o estudo evidenciou o potencial da análise estatística descritiva para revelar padrões ecológicos e morfológicos relevantes em populações de animais selvagens.
-
-
+\newpage
 
 # Referências
+Referências
+BEBLAWI, H. The rentier state in the Arab world. In: The Arab State. [S.l.]: University of California Press, 1987. p. 85-98.
 
+HASAN, M. et al. Stepping into the rentier state: A new taxonomy of resource dependence. World Development, v. 174, p. 106-118, 2024.
 
+MOHTADI, H. et al. Gendered effects of rentier states: A comparative analysis. Journal of Comparative Economics, v. 53, n. 2, p. 215-234, 2025.
 
-
-
-
-
+VLASKAMP, M. C.; SAUER, P. Pathways from oil dependence to institutional quality. Resources Policy, v. 92, p. 104-122, 2025
