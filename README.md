@@ -12,44 +12,50 @@ Extraiu-se dados macroeconômicos a partir de bases do World Bank Data (Banco Mu
 
 **Variáveis Independentes**
 
-* `Oil_price`: dados sobre evolução do preço do barril no tempo.
-* `Oil_share_GDP`: Porcentagem do PIB proveniente de receitas do petróleo
-* `Export_import_oil`: Dados sobre valores de importação e importação de petróleo de países ao longo dos anos.
-* `Fuel_share_exports`: Porcentagem de exportação de combustíveis sobre o total de mercadorias
-* `Rents_share_budget`: participação da renda vinda de combustíveis fósseis no orçamento do governo.
+* `oil_share_gdp_x`: Porcentagem do PIB proveniente de receitas do petróleo
+* `fuel_share_exports_x`: Porcentagem de exportação de combustíveis sobre o total de mercadorias
 
 
 **Variáveis Dependentes**
 
-- `Gov_stability`: índice que mede a estabilidade governamental de 0-100
-- `Burocratic_eff`: índice que mede a eficiência da burocracia/administração governamental de 0-100
-- `Judiciary_stability`: mede a segurança jurídica do país de 0-100
-- `Cpi_index`: mede a percepção geral de corrupção de um país de 0-100
-- `Inflation`: Inflação percebida em 1 ano
+- `gov_stability_x`: índice que mede a estabilidade governamental de 0-100
+- `bureaucratic_eff_x`: índice que mede a eficiência da burocracia/administração governamental de 0-100
+- `rule_of_law_x`: mede a segurança jurídica do país de 0-100
+- `corruption_control_x`: mede a percepção geral de corrupção de um país de 0-100
+- `inflation_index_x`: Inflação percebida em 1 ano
 - `Unemployement`: porcentagem de desemprego reportado em 1 ano
-- `Industry_share_GDP`: participação da indústria na economia
-- `Life_expectancy`: expectativa de vida ao nascer média em um país
-- `HDI_index`: mede o Índice de Desenvolvimento Humano (IDH) de um país de 0-1
-- `Tax_share_revenue`: participação da taxação no total do PIB de um país
-- `Pib_capita_ppc`: renda média por pessoa ajustada ao poder de compra local
+- `industry_share_gdp_x`: participação da indústria na economia
+- `life_expectancy_x`: expectativa de vida ao nascer média em um país
+- `hdi`: mede o Índice de Desenvolvimento Humano (IDH) de um país de 0-1
+- `tax_share_gdp_x`: participação da taxação no total do PIB de um país
+- `gdp_capita_ppp_x`: renda média por pessoa ajustada ao poder de compra local
 
 **Variáveis de Controle**
 
-- `Ressource_rich_export_country`: verifica se o país exporta combustíveis e/ou é rico em recursos não-renováveis
-- `Development_level`: checa o nível de desenvolvimento de um país, variando de baixa renda até alta renda
-- `Island_micronation`: verifica se é um micro-país
-- `Rentier_state` (Mohtadi et al., 2025; Vlaskamp, 2025): verifica se é um estado rentista (escala abaixo)
-- `Oil_centered_matrix` (IEA, 2023): verifica se tem matriz dependente de combustíveis fósseis (escala abaixo)
+- `ResourceRich`: verifica se o país é rico em recursos naturais
+- `FuelExporting`: verifica se o país é exportador de combustíveis fósseis.
+- `rentier_state` (Mohtadi et al., 2025; Vlaskamp, 2025): verifica se é um estado rentista (escala abaixo)
 
 As variáveis explicativas e explicadas serão fundamentalmente quantitativas contínuas, trazendo indicadores de diversas áreas que englobam o ciclo econômico dos países analisados, tirados de bases de dados do World Bank Data, International Transparency, International Monetary Fund e Kaggle. 
 
-Outrossim, as variáveis de controle serão qualitativas ordinais e nominais. As qualitativas nominais serão tiradas da base de dados do IMF (2026), que são o Development_level, Island_micronation e Ressource_rich_export_country. 
+Outrossim, as variáveis de controle serão qualitativas ordinais e nominais. As qualitativas nominais serão tiradas da base de dados do IMF (2026), que são os rentier_state, ResourceRich e FuelExporting. 
 
 Por outro lado, as ordinais serão criadas com base nos dados coletados das três variáveis independentes que tangem a dependência financeiro no petróleo, em que a classificação Rentier_state será: Não-rentista (nenhum dos cortes atendidos), semi-rentista (um corte atendido) e rentista (mais de um corte atendido). Os cortes para essas medidas são: o limite de Mohtadi et al. (2025) e Hasan et al.(2024) de 10% do PIB proveniente da venda de petróleo, 20% das exportações e das receitas estatais provindas da venda de combustíveis (IMF, 2012). 
 
-No que tange a dependência da Oil_centered_matrix, a variável independente que estabelece irá ordenar o nível de dependência ordinal, segundo os dados da Agência Internacional da Energia (IEA) (2023), que afirma que há décadas que a média global de participação dos combustíveis fósseis na matriz é de 80%. Então, estabeleceu-se que os cortes seriam: : Pouco dependente (menor ou igual a 50%), Dependente (maior que 50% e menor que 80%), Muito dependente (maior ou igual a 80%), onde o corte de 50% é uma escolha arbitrária com base no limiar fornecido pela IEA.
-
 ## Planejamento
+
+**Perguntas**
+
+- Como os índices governamentais se comportam em relação a dependência do petróleo em relação ao PIB?
+
+- A partipação da indústria é maior em Estados Rentistas ou não rentistas? E com relação ao emprego? Observe a distribuição dos dados.
+
+- A hipótese "sem taxação sem representação" é validadada pelo conjunto de dados? Isto é, existe uma correlação negativa entre a taxação e os índices de eficiência governamental?
+
+- A IDH tem evoluído mais em Estados Rentistas ou não rentistas? E com relação a expectativa de vida? (Em média, ao longo dos 30 anos)
+
+- Como se comporta a média global dos indicadores econômicos entre os 2 grupos(inflação, investimentos estrangeiros e crescimento econômico)?
+
 
 **Gráficos e Tabelas**
 
@@ -68,7 +74,7 @@ Será utilizado o `R` para realizar a análise e modelar os dados
 
 **Classificação das Variáveis**
 
-- `Eixo Energético`: %PIB petróleo/exportação, %Receitas estatais do petróleo, %Matriz energética e Preço do Barril
+- `Eixo Energético`: %PIB petróleo/exportação.
 
 - `Eixo Socioeconômico`: PIB per Capita PPC, Desemprego, IDH, Inflação, etc.
 
@@ -131,4 +137,4 @@ Será utilizado o `R` para realizar a análise e modelar os dados
 - World Bank (n.d.). *Unemployment, Total (% of total labor force)*. Washington, DC.
 
 
-*o arquivo .bib será adicionado mais tarde*
+*o arquivo .bib será adicionado mais tarde e integrado ao Rmd*
